@@ -1,0 +1,27 @@
+package com.retailpro.security;
+
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import com.retailpro.entity.User;
+import com.retailpro.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class CustomUserDetailsService implements UserDetailsService {
+
+	private final UserRepository userRepository;
+
+	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+		User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User by email does not exists!"));
+
+		return org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
+				.password(user.getPassword()).roles(user.getRole().name()).build();
+	}
+}
